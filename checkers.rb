@@ -1,3 +1,15 @@
+class Game
+  def initialize
+    b = Board.new
+    b.board_fill
+    b.render
+  end
+
+  def play
+
+  end
+end
+
 class Board
   attr_accessor :grid
 
@@ -36,6 +48,20 @@ class Board
     end
   end
 
+  def contains_enemy_piece?(self_coord, target_coord)
+    unless self[self_coord].nil? || self[target_coord].nil?
+      return self[self_coord].color != self[target_coord].color
+    end
+    false
+  end
+
+  def contains_friendly_piece?(self_coord, target_coord)
+    if self[self_coord] && self[target_coord]
+      return self[self_coord].color == self[target_coord].color
+    end
+    false
+  end
+
   def render
     (0..7).each do |row|
       (0..7).each do |column|
@@ -64,12 +90,24 @@ class Piece
     @board = board
   end
 
-  def moves(piece)
+  def moves
     possible_moves = []
-
+    self.move_diffs.each do |delta|
+      coords = @pos.dup
+      coords[0] += delta[0]
+      coords[1] += delta[1]
+      if ((0..7).to_a.include?(coords[0]) && (0..7).to_a.include?(coords[1]))
+        && @board[coords].nil?
+        possible_moves << coords
+      elsif @board.contains_enemy_piece?(self.pos,coords)
+        && !@board.contains_enemy_piece?(self.pos,[coords[0]+delta[0],coords[1]+delta[1]])
+        possible_moves << [coords[0]+delta[0],coords[1]+delta[1]]
+      end
+    end
+    possible_moves
   end
 
-  def move_diffs(piece)
+  def move_diffs
     if piece.color == "white"
       deltas = [[-1,1],[1,1]]
     elsif piece.color == "black"
@@ -77,8 +115,20 @@ class Piece
     end
     deltas
   end
-end
 
-b = Board.new
-b.board_fill
-b.render
+  def perform_slide
+
+  end
+
+  def perform_jump
+
+  end
+
+  def maybe_promote
+
+  end
+
+  def promote
+
+  end
+end
