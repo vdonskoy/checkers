@@ -1,15 +1,4 @@
-class Game
-  def initialize
-    b = Board.new
-    b.board_fill
-    b.render
-  end
-
-  def play
-
-  end
-end
-
+require 'debugger'
 class Board
   attr_accessor :grid
 
@@ -96,11 +85,9 @@ class Piece
       coords = @pos.dup
       coords[0] += delta[0]
       coords[1] += delta[1]
-      if ((0..7).to_a.include?(coords[0]) && (0..7).to_a.include?(coords[1]))
-        && @board[coords].nil?
+      if ((0..7).to_a.include?(coords[0]) && (0..7).to_a.include?(coords[1])) && @board[coords].nil?
         possible_moves << coords
-      elsif @board.contains_enemy_piece?(self.pos,coords)
-        && !@board.contains_enemy_piece?(self.pos,[coords[0]+delta[0],coords[1]+delta[1]])
+      elsif @board.contains_enemy_piece?(self.pos,coords) && !@board.contains_enemy_piece?(self.pos,[coords[0]+delta[0],coords[1]+delta[1]])
         possible_moves << [coords[0]+delta[0],coords[1]+delta[1]]
       end
     end
@@ -108,16 +95,20 @@ class Piece
   end
 
   def move_diffs
-    if piece.color == "white"
-      deltas = [[-1,1],[1,1]]
-    elsif piece.color == "black"
-      deltas =[[-1,-1],[1,-1]]
+    if self.color == "white"
+      deltas = [[1,-1],[1,1]]
+    elsif self.color == "black"
+      deltas =[[-1,-1],[-1,1]]
     end
     deltas
   end
 
-  def perform_slide
-
+  def perform_slide(pos, target_coords)
+    if self.moves.include?(target_coords)
+      self.board[target_coords] = self.board[pos].class.new(target_coords, self.board[pos].color, self.board)
+      self.board[pos] = nil
+      #self[target_coords].pos = target_coords.dup
+    end
   end
 
   def perform_jump
@@ -132,3 +123,21 @@ class Piece
 
   end
 end
+
+class Game
+  def initialize
+    b = Board.new
+    b.board_fill
+    b.render
+    pos = [2,1]
+    pos2 = [3,0]
+    b[pos].perform_slide(pos, pos2)
+    b.render
+  end
+
+  def play
+
+  end
+end
+
+Game.new
